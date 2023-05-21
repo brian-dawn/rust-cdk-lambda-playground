@@ -2,7 +2,7 @@ use lambda_runtime::{service_fn, Error, LambdaEvent};
 use serde::{Deserialize, Serialize};
 use std::time::SystemTime;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct Request {
     name: String,
 }
@@ -21,10 +21,16 @@ async fn main() -> Result<(), Error> {
         .with_target(false)
         // disabling time is handy because CloudWatch will add the ingestion time.
         .without_time()
+        // disable ANSI colors because CloudWatch doesn't support them.
+        .with_ansi(false)
         .init();
 
     lambda_runtime::run(service_fn(|event: LambdaEvent<Request>| async {
         let request = event.payload;
+
+        // Log the request.
+        tracing::info!("request: {:?}", request);
+
         let response = Response {
             message: format!("Hello worlds, {}!", request.name),
 
