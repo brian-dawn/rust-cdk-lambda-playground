@@ -1,6 +1,9 @@
+use anyhow::Result;
 use lambda_runtime::{service_fn, Error, LambdaEvent};
 use serde::{Deserialize, Serialize};
+use serde_dynamo::to_item;
 use std::alloc::System;
+use std::collections::HashMap;
 use std::time::SystemTime;
 
 use aws_sdk_dynamodb::types::AttributeValue;
@@ -15,6 +18,26 @@ struct Request {
 struct Response {
     message: String,
     timestamp: std::time::SystemTime,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct DbItem {
+    pub id: String,
+    pub timestamp: String,
+}
+
+impl DbItem {
+    fn to_item(&self) -> Result<HashMap<String, AttributeValue>> {
+        let item = to_item(&self)?;
+
+        Ok(item)
+    }
+
+    fn to_some_item(&self) -> Result<Option<HashMap<String, AttributeValue>>> {
+        let item = self.to_item()?;
+
+        Ok(Some(item))
+    }
 }
 
 #[tokio::main]
@@ -52,8 +75,13 @@ async fn main() -> Result<(), Error> {
         dynamo
             .put_item()
             .table_name(table_name.clone())
-            .item("id", AttributeValue::S(id.to_string()))
-            .item("timestamp", AttributeValue::S(system_time_epoch_ms))
+            .set_item(
+                DbItem {
+                    id: id.clone(),
+                    timestamp: system_time_epoch_ms.clone(),
+                }
+                .to_some_item()?,
+            )
             .send()
             .await?;
 

@@ -26,5 +26,8 @@ export class RustCdkLambdaStack extends cdk.Stack {
     })
 
     db.grantReadWriteData(fn);
+
+
+
   }
 }
