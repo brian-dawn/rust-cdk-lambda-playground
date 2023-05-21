@@ -1,5 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { RustFunction } from 'rust.aws-cdk-lambda';
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export class RustCdkLambdaStack extends cdk.Stack {
@@ -12,5 +13,11 @@ export class RustCdkLambdaStack extends cdk.Stack {
     // const queue = new sqs.Queue(this, 'RustCdkLambdaQueue', {
     //   visibilityTimeout: cdk.Duration.seconds(300)
     // });
+
+
+    new RustFunction(this, 'RustFunction', {
+      directory: 'lambdas',
+      bin: "hello_world"
+    })
   }
 }
