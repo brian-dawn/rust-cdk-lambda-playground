@@ -26,7 +26,8 @@ async fn main() -> Result<(), Error> {
     lambda_runtime::run(service_fn(|event: LambdaEvent<Request>| async {
         let request = event.payload;
         let response = Response {
-            message: format!("Hello, {}!", request.name),
+            message: format!("Hello worlds, {}!", request.name),
+
             timestamp: SystemTime::now(),
         };
         Ok::<_, Error>(response)
